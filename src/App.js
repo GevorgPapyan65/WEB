@@ -1,16 +1,19 @@
+import { useSelector } from 'react-redux';
 import './App.css';
-import Product from './pages/Product';
 import Home from './pages/Home';
-import ProductList from './pages/ProductList';
-import Register from './pages/Register';
+import { useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
-import Cart from './pages/Cart';
+
+
 
 function App() {
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user.currentUser);
+  console.log(user)
+
   return (
     <div>
-
-         <Home/>
+         <Home />
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import { Search, ShoppingCartOutlined } from '@material-ui/icons'
 import { Badge } from '@material-ui/core'
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import {mobile} from "../responsive"
 import Register from "../pages/Register.js"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Home from '../pages/Home'
+import Logout from '../pages/Logout'
 import Product from './Product'
+import { useSelector } from 'react-redux'
 
 
 
@@ -76,6 +78,18 @@ const MenuItem = styled.div`
 `
 
 const Navbar = () => {
+    const quantity = useSelector(state=>state.cart.quantity)
+    // const history = useHistory()
+    // function logout(){
+    //     localStorage.clear()
+    //     history.push('/register')
+    // }
+    // const navigate = useNavigate();
+
+    // const logout = () => {
+    //   // 👇️ navigate programmatically
+    //   navigate('/Home');
+    // };
   return (
     <Conatainer>
         <Wrapper>
@@ -88,13 +102,16 @@ const Navbar = () => {
                 </SearchContainer>
             </Left>
 
-            <Center><Logo><Link to='/Home'>Lama.</Link></Logo></Center>
+            <Center><Logo><Link to='/Home'>LOGO</Link></Logo></Center>
             <Right>
                 <MenuItem><Link to='/REGISTER'>REGISTER</Link></MenuItem>
-                <MenuItem ><Link to='/SIGN IN'>SIGN IN</Link></MenuItem>
+                <MenuItem ><Link to='/Login'>SIGN IN</Link></MenuItem>
+                <MenuItem><Link to='/Logout'>LOGOUT</Link></MenuItem>
+
+                {/* logout */}
                 <MenuItem>
-                    <Badge badgeContent={4} color="primary">
-                    <Link to='/Product'><ShoppingCartOutlined /></Link>
+                    <Badge badgeContent={quantity} color="primary">
+                    <Link to='/Cart'><ShoppingCartOutlined /></Link>
                     </Badge>
                 </MenuItem>
             </Right>

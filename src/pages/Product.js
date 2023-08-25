@@ -4,10 +4,12 @@ import Announcement from "../components/Announcement"
 import Footer from "../components/Footer"
 import Navbar from "../components/Navbar"
 import Newsletter from "../components/Newsletter"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { mobile } from "../responsive"
-import { Link } from "react-router-dom"
-import Cart from "./Cart"
+import { useLocation } from "react-router-dom"
+import { addProduct, products, quantity, price } from "../redux/cartRedux"
+import { useDispatch } from "react-redux"
+import { publicRequest } from "../requestMethod"
 
 const Container = styled.div``
 
@@ -121,64 +123,79 @@ const Button = styled.button`
 `
 
 const Product = () => {
- 
 
-    
-    const [counter, setCounter] = useState(0);
- 
-    
-    const gumarel = () => {
-      setCounter(count => count + 1);
-    };
-       
-    const hanel = () => {
-            if(counter > 0)
-                setCounter(count => count - 1);
+    const [quantity, setQuantity] = useState(1);
+    const location = useLocation();
+    const id = location.pathname.split("/")[2]
+    const [product, setProduct] = useState({});
+    const [color, setColor] = useState("");
+    const [size, setSize] = useState("");
+    const dispatch = useDispatch()
+
+    const handleQuantity = (type) => {
+        if (type === "dec") {
+          quantity > 1 && setQuantity(quantity - 1);
+        } else {
+          setQuantity(quantity + 1);
+        }
       };
+
+    useEffect(()=>{
+        const getProduct = async () =>{
+            try{
+                const res = await publicRequest.get("/products/find/"+id)
+                setProduct(res.data)
+            }catch{}
+        }
+        getProduct()
+    },[id])
+
+
+    const handleClick = () =>{
+       
+        dispatch(
+            addProduct({ ...product, quantity, color, size})
+           
+        )
+    }
 
 
     return (
+
     <Container>
       <Navbar/>
       <Announcement/>
       <Wrapper>
         <ImgContainer>
-            <Image src="https://i.ibb.co/S6qMxwr/jean.jpg"/>
+            <Image src={product.img}/>
         </ImgContainer>
         <InfoContainer>
-            <Title>Denim Jumpsuit</Title>
-            <Desc>Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                 when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
-                 It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-                  It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages,4
-                 and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Desc>
-            <Price>$ 20</Price>
+            <Title>{product.title}</Title>
+            <Desc>{product.desc}</Desc>
+            <Price>$ {product.price}</Price>
             <FilterContainer>
                 <Filter>
                     <FilterTitle>Color</FilterTitle>
-                    <FilterColor color="black" />
-                    <FilterColor color="darkblue" />
-                    <FilterColor color="gray" />
+                    {product.color?.map((c, index)=>(
+                        <FilterColor color={c} key={index} onClick={()=>setColor(c)} />
+                    ))}
                 </Filter>
                 <Filter>
                     <FilterTitle>Size</FilterTitle>
-                    <FilterSize>
-                        <FilterSizeOption>XS</FilterSizeOption>
-                        <FilterSizeOption>S</FilterSizeOption>
-                        <FilterSizeOption>M</FilterSizeOption>
-                        <FilterSizeOption>L</FilterSizeOption>
-                        <FilterSizeOption>XL</FilterSizeOption>
+                    <FilterSize onChange={(e) => setSize(e.target.value)}>
+                    {product.size?.map((s, index)=>(
+                        <FilterSizeOption color={s} key={index}>{s}</FilterSizeOption>
+                    ))}
                     </FilterSize>
                 </Filter>
             </FilterContainer>
             <AddContainer>
                 <AmountContainer>
-                    <Remove onClick={hanel}/>
-                    <Amount>{counter}</Amount>
-                    <Add onClick={gumarel} className="gumar"/>
+                    <Remove onClick={() => handleQuantity("dec")} />
+                    <Amount>{quantity}</Amount>
+                    <Add onClick={() => handleQuantity("inc")} />
                 </AmountContainer>
-                <Button onClick={<Cart/>}><Link to='/Cart'>Add To Cart</Link></Button>
+                <Button onClick={handleClick}>Add To Cart</Button>
             </AddContainer>
         </InfoContainer>
       </Wrapper>
